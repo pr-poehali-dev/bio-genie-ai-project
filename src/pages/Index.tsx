@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import AuthModal, { AuthUser } from '@/components/AuthModal';
+import GeneratorModal from '@/components/GeneratorModal';
 import { useToast } from '@/hooks/use-toast';
 
 const HERO_IMG =
@@ -166,10 +167,24 @@ const SectionHeading = ({
 const Index = () => {
   const [activeTone, setActiveTone] = useState(0);
   const [authOpen, setAuthOpen] = useState(false);
+  const [generatorOpen, setGeneratorOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const { toast } = useToast();
 
   const openAuth = () => setAuthOpen(true);
+
+  const handleGenerateClick = () => {
+    if (user) {
+      setGeneratorOpen(true);
+    } else {
+      setAuthOpen(true);
+    }
+  };
+
+  const handleAuthSuccess = (authUser: AuthUser) => {
+    setUser(authUser);
+    setGeneratorOpen(true);
+  };
 
   const scrollTo = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
@@ -216,10 +231,13 @@ const Index = () => {
             ))}
           </nav>
           {user ? (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neon-purple/40 bg-neon-purple/10">
-              <Icon name="UserCircle2" size={18} className="text-neon-cyan" />
+            <button
+              onClick={() => setGeneratorOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-neon-purple/40 bg-neon-purple/10 hover:bg-neon-purple/20 transition-colors"
+            >
+              <Icon name="Sparkles" size={16} className="text-neon-cyan" />
               <span className="text-sm">{user.name}</span>
-            </div>
+            </button>
           ) : (
             <Button
               onClick={openAuth}
@@ -265,7 +283,7 @@ const Index = () => {
           >
             <Button
               size="lg"
-              onClick={openAuth}
+              onClick={handleGenerateClick}
               className="h-14 px-10 text-base bg-gradient-to-r from-neon-purple via-fuchsia-500 to-neon-cyan text-white border-0 hover:scale-105 transition-transform duration-300 shadow-[0_0_35px_rgba(168,85,247,0.6)]"
             >
               <Icon name="Sparkles" size={20} className="mr-2" />
@@ -425,7 +443,7 @@ const Index = () => {
                 ))}
               </ul>
               <Button
-                onClick={openAuth}
+                onClick={handleGenerateClick}
                 className={`w-full ${
                   p.featured
                     ? 'bg-gradient-to-r from-neon-purple to-neon-cyan text-white border-0 shadow-[0_0_25px_rgba(168,85,247,0.5)]'
@@ -469,7 +487,7 @@ const Index = () => {
             </p>
             <Button
               size="lg"
-              onClick={openAuth}
+              onClick={handleGenerateClick}
               className="h-14 px-12 text-base bg-gradient-to-r from-neon-purple via-fuchsia-500 to-neon-cyan text-white border-0 hover:scale-105 transition-transform shadow-[0_0_40px_rgba(168,85,247,0.6)]"
             >
               <Icon name="Sparkles" size={20} className="mr-2" />
@@ -496,7 +514,10 @@ const Index = () => {
         </div>
       </footer>
 
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onAuth={setUser} />
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onAuth={handleAuthSuccess} />
+      {user && (
+        <GeneratorModal open={generatorOpen} onOpenChange={setGeneratorOpen} user={user} />
+      )}
     </div>
   );
 };

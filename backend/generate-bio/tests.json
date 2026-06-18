@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Missing user_id returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"tone": "gothic", "keywords": "shadows"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "user_id required"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing keywords returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"user_id": 1, "tone": "gothic"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "keywords required"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
