@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Signup requires email",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "signup", "password": "x"},
+      "expectedStatus": 400
+    },
+    {
+      "name": "Login with wrong creds",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "login", "email": "nobody@void.dev", "password": "wrongpass"},
+      "expectedStatus": 401
+    }
+  ]
+}

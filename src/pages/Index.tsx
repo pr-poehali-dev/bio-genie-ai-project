@@ -7,6 +7,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import AuthModal, { AuthUser } from '@/components/AuthModal';
+import { useToast } from '@/hooks/use-toast';
 
 const HERO_IMG =
   'https://cdn.poehali.dev/projects/1a479ddc-5c2b-4de5-a394-4856c57d065d/files/a285c1fd-2709-41ea-b565-83b5eda0811e.jpg';
@@ -163,6 +165,27 @@ const SectionHeading = ({
 
 const Index = () => {
   const [activeTone, setActiveTone] = useState(0);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const { toast } = useToast();
+
+  const openAuth = () => setAuthOpen(true);
+
+  const scrollTo = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const el = document.querySelector(href);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const copyBio = async () => {
+    const text = EXAMPLES[activeTone].bio;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: 'Bio copied', description: 'Paste it into your profile and enchant the world.' });
+    } catch {
+      toast({ title: 'Copy failed', description: 'Your browser blocked clipboard access.', variant: 'destructive' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-obsidian text-foreground font-body overflow-x-hidden relative">
@@ -174,7 +197,7 @@ const Index = () => {
 
       <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-obsidian/70 border-b border-white/5">
         <div className="container flex items-center justify-between h-20">
-          <a href="#home" className="flex items-center gap-2">
+          <a href="#home" onClick={(e) => scrollTo(e, '#home')} className="flex items-center gap-2">
             <Icon name="Ghost" size={28} className="text-neon-purple text-glow-purple" />
             <span className="font-display font-bold text-xl tracking-wider">
               BioGenie<span className="text-neon-cyan"> AI</span>
@@ -185,15 +208,26 @@ const Index = () => {
               <a
                 key={n.label}
                 href={n.href}
+                onClick={(e) => scrollTo(e, n.href)}
                 className="text-sm tracking-wide text-muted-foreground hover:text-neon-cyan transition-colors duration-300"
               >
                 {n.label}
               </a>
             ))}
           </nav>
-          <Button className="bg-gradient-to-r from-neon-purple to-fuchsia-600 text-white border-0 hover:opacity-90 shadow-[0_0_20px_rgba(168,85,247,0.5)]">
-            Generate Bio
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neon-purple/40 bg-neon-purple/10">
+              <Icon name="UserCircle2" size={18} className="text-neon-cyan" />
+              <span className="text-sm">{user.name}</span>
+            </div>
+          ) : (
+            <Button
+              onClick={openAuth}
+              className="bg-gradient-to-r from-neon-purple to-fuchsia-600 text-white border-0 hover:opacity-90 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+            >
+              Generate Bio
+            </Button>
+          )}
         </div>
       </header>
 
@@ -231,6 +265,7 @@ const Index = () => {
           >
             <Button
               size="lg"
+              onClick={openAuth}
               className="h-14 px-10 text-base bg-gradient-to-r from-neon-purple via-fuchsia-500 to-neon-cyan text-white border-0 hover:scale-105 transition-transform duration-300 shadow-[0_0_35px_rgba(168,85,247,0.6)]"
             >
               <Icon name="Sparkles" size={20} className="mr-2" />
@@ -239,6 +274,7 @@ const Index = () => {
             <Button
               size="lg"
               variant="outline"
+              onClick={(e) => scrollTo(e, '#examples')}
               className="h-14 px-8 text-base bg-transparent border-white/15 text-foreground hover:bg-white/5 hover:border-neon-cyan/50"
             >
               <Icon name="Play" size={18} className="mr-2" />
@@ -344,6 +380,7 @@ const Index = () => {
             </pre>
             <Button
               variant="outline"
+              onClick={copyBio}
               className="mt-6 w-full bg-transparent border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
             >
               <Icon name="Copy" size={16} className="mr-2" /> Copy this bio
@@ -388,6 +425,7 @@ const Index = () => {
                 ))}
               </ul>
               <Button
+                onClick={openAuth}
                 className={`w-full ${
                   p.featured
                     ? 'bg-gradient-to-r from-neon-purple to-neon-cyan text-white border-0 shadow-[0_0_25px_rgba(168,85,247,0.5)]'
@@ -431,6 +469,7 @@ const Index = () => {
             </p>
             <Button
               size="lg"
+              onClick={openAuth}
               className="h-14 px-12 text-base bg-gradient-to-r from-neon-purple via-fuchsia-500 to-neon-cyan text-white border-0 hover:scale-105 transition-transform shadow-[0_0_40px_rgba(168,85,247,0.6)]"
             >
               <Icon name="Sparkles" size={20} className="mr-2" />
@@ -456,6 +495,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} onAuth={setUser} />
     </div>
   );
 };
